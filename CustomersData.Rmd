@@ -1,0 +1,131 @@
+---
+title: "CustomersData"
+author: "Abanather Negusu"
+date: "7/26/2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#install.packages("xlsx")
+library("xlsx")
+#install.packages("ggplot2")
+library("ggplot2")
+#install.packages("tidyverse")
+library("tidyverse")
+#install.packages("dplyr")
+library("dplyr")
+```
+
+
+```{r}
+#Import your .csv file to your Global Environment
+custdata <- read.csv("custdata.csv", header = TRUE)
+```
+
+
+#2.1: Figure out how to plot density of income. (5 points)
+#2.2: Provide a couple of sentences of description along with the plot. Imagine you
+#are explaining this to your manager or a senior leader. (5 points)
+
+This density plot below shows a smoothed distribution of points along the numeric axis.
+According to the plot we can see a high distribution on the left side of our graph. 
+
+```{r}
+#2.1
+plot(density(custdata$income))
+Xlab = "income"
+ylab = "density"
+```
+
+
+
+#3.1: Create a bar chart for housing type using the customers data. Make sure to
+#remove the “NA” type. [Hint: You can use subset function with an appropriate
+#condition on housing type field.] Provide your commands and the plot.
+#(5 points)
+
+Below the boxplot can show that there are a high proportion of customers that are
+home owners with loans or are renting. 
+
+```{r}
+#3.1
+#removing nulls from house column
+custdata2 <- custdata %>% filter(custdata$housingType != "")
+#plotting 
+box_plot <- ggplot(custdata2, aes(x = housingType)) + geom_bar()
+box_plot 
+```
+
+
+#4.1: Extract a subset of customers that are married and have an income more than $50,000.(5 points)
+
+```{r}
+#4.1
+custdata3<- subset(custdata,income>50000 & marital.stat == "Married")
+custdata3
+
+```
+
+
+#4.2: What percentage of these customers have health insurance? (5 points
+```{r}
+#Getting information of customers  that are married with health insurance
+custdata4<- subset(custdata,income>50000 & marital.stat == "Married")
+custdata4 <- custdata4[ , c( "custid", "marital.stat", "health.ins")]
+
+# Using the same data from above to create table that shows How many people are True and how many are False for having insurance
+cust_insurance <- table(custdata4$health.ins) %>% data.frame() 
+cust_insurance
+
+ # Referencing the row of Trues from the table of how many people have insurance or not
+insurance_True <- cust_insurance[2, ]
+
+
+# Percentage of people who are married and have an income of $50000+ have insurance 
+insurance_True$Freq *100/sum(cust_insurance$Freq)
+```
+
+
+
+
+#4.3: How does this percentage differ from that for the whole data set? (5 points)
+
+The percentage of 84.1% differs from the whole data because that is how many customers have  health insurance. According to the table below 841 customers have health insurance compared to the 159 who do not. 
+
+```{r}
+#4.3: 
+cust_insurance2 <- table(custdata$health.ins) %>% data.frame() # table that shows How many people are True and how many are False
+cust_insurance2
+
+insurance_True2 <- cust_insurance2[2, ] # Referencing the row of Trues from the table of how many people have insurance or not
+
+
+# Percentage of all the people in the data set who have insurance 
+insurance_True2$Freq *100/sum(cust_insurance2$Freq)
+
+
+```
+
+#5.1: In the customers data, do you think there is any correlation between age,
+#income, and number of vehicles? Explain why or why not. (5 points)
+
+
+
+```{r}
+#5.1 Here I am cleaning my data to filter and display ages greater/ equal to 18 & less than equal to 93 with an income greater than zero.
+Clean_data <- custdata %>% filter(age >= 18 & age <= 93 &  income > 0) %>% select(num.vehicles, age, income)
+#5.1 Here is my correlation
+Clean_data$income <- as.numeric(Clean_data$income)
+cor(Clean_data %>% select(num.vehicles,income,age))
+
+```
+#5.2: Report your correlation numbers and interpretations. [Hint: Make sure to
+#remove invalid data points, otherwise you may get incorrect answers!] (10 points)
+
+I believe that my correlation numbers show that most are inversely correlated. Looking at the correlation between income and age I could see some patterns there. Although there might not be causation there can still be a pattern found within those two variables.
